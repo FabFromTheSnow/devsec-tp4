@@ -209,17 +209,17 @@ def search():
             results = [("ERROR", str(e))]
         conn.close()
 
-    html = f"""
+    return render_template_string("""
     <h1>Recherche</h1>
     <form>
-        <input type="text" name="q" value="{escape(search_term)}" placeholder="Rechercher...">
+        <input type="text" name="q" value="{{ search_term }}" placeholder="Rechercher...">
         <button>Search</button>
     </form>
-    <div>Résultats : {len(results)}</div>
-    """
-    for r in results:
-        html += f'<div>{escape(r[1])} - {r[3]} €</div>'
-    return html 
+    <div>Résultats : {{ results|length }}</div>
+    {% for r in results %}
+        <div>{{ r[1] }} - {{ r[3] }} €</div>
+    {% endfor %}
+    """, search_term=search_term, results=results)
 # ==================================================================================
 # ⚠️ VULNÉRABILITÉ 3 : XSS Stocké (CWE-79)
 # ==================================================================================
