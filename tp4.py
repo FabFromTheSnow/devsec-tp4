@@ -12,6 +12,7 @@ Objectif du TP : Identifier, exploiter et corriger les 3 vulnérabilités CRITIC
 """
 
 from flask import Flask, render_template_string, request, redirect, url_for, session
+from markupsafe import escape
 import sqlite3
 import os
 
@@ -194,17 +195,13 @@ def products():
 # ==================================================================================
 @app.route('/search')
 def search():
-    """Recherche VULNÉRABLE à SQL Injection."""
     search_term = request.args.get('q', '')
     results = []
 
     if search_term:
         conn = sqlite3.connect('ynovshop.db')
         cursor = conn.cursor()
-
-        #requête préparé 
         query = "SELECT * FROM products WHERE name LIKE ?"
-
         try:
             cursor.execute(query, (f'%{search_term}%',))
             results = cursor.fetchall()
@@ -215,17 +212,14 @@ def search():
     html = f"""
     <h1>Recherche</h1>
     <form>
-        <input type="text" name="q" value="{search_term}" placeholder="Rechercher...">
+        <input type="text" name="q" value="{escape(search_term)}" placeholder="Rechercher...">
         <button>Search</button>
     </form>
-    <p>⚠️ Test SQLi: ' OR '1'='1'--</p>
     <div>Résultats : {len(results)}</div>
     """
     for r in results:
-        html += f'<div>{r[1]} - {r[3]} €</div>'
-    return html
-
-
+        html += f'<div>{escape(r[1])} - {r[3]} €</div>'
+    return html 
 # ==================================================================================
 # ⚠️ VULNÉRABILITÉ 3 : XSS Stocké (CWE-79)
 # ==================================================================================
