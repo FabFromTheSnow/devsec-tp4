@@ -202,14 +202,14 @@ def search():
         conn = sqlite3.connect('ynovshop.db')
         cursor = conn.cursor()
 
-        # 🚨 DANGER : Concaténation SQL avec f-string
-        query = f"SELECT * FROM products WHERE name LIKE '%{search_term}%'"
+        #requête préparé 
+        query = "SELECT * FROM products WHERE name LIKE ?"
 
         try:
-            cursor.execute(query)
+            cursor.execute(query, (f'%{search_term}%',))
             results = cursor.fetchall()
         except sqlite3.Error as e:
-            results = [("ERROR", str(e), 0, 0)]
+            results = [("ERROR", str(e))]
         conn.close()
 
     html = f"""
